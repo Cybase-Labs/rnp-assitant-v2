@@ -47,7 +47,6 @@ jobs:
           script: |
             set -eu
             cd "$DEPLOY_PATH"
-            mkdir -p storage
             {
               printf 'NODE_ENV=production\n'
               printf 'APP_PORT=%s\n' "$APP_PORT"
