@@ -1,0 +1,24 @@
+@import "tailwindcss";
+:root {
+  --font-body: "Outfit", sans-serif;
+  --font-heading: "Sora", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
