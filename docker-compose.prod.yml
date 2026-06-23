@@ -13,4 +13,7 @@ services:
     ports:
       - "${APP_PORT:-3030}:3000"
     volumes:
-      - ./storage:/app/storage
+      - rnp-assistant-storage:/app/storage
+
+volumes:
+  rnp-assistant-storage:

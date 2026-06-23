@@ -51,10 +51,10 @@ If Nginx Proxy Manager runs directly on the host instead of inside Docker, use `
 
 Push to `main`, or run the `Deploy` workflow manually from GitHub Actions.
 
-The SQLite database is stored on the server in:
+The SQLite database is stored in a Docker named volume:
 
 ```sh
-<DEPLOY_PATH>/storage/app.db
+rnp-assistant-storage
 ```
 
 The bundled law JSON stays inside the image at `data/rwanda_traffic_law.json`.
