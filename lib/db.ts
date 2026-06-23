@@ -2,16 +2,17 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 
-const dataDir = path.join(process.cwd(), "data");
+const dataDir = process.env.APP_DATA_DIR || path.join(process.cwd(), "data");
 
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
 const dbPath = path.join(dataDir, "app.db");
-const db = new Database(dbPath);
+const db = new Database(dbPath, { timeout: 5000 });
 
 db.pragma("journal_mode = WAL");
+db.pragma("busy_timeout = 5000");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS feedback (

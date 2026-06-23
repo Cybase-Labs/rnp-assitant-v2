@@ -7,6 +7,8 @@ type Stats = {
   notHelpful: number;
 };
 
+export const dynamic = "force-dynamic";
+
 type LanguageItem = {
   language: string;
   count: number;

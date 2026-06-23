@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const { default: db } = await import("@/lib/db");
+
     const totalQuestionsRow = db
       .prepare(`SELECT COUNT(*) as count FROM questions`)
       .get() as { count: number };

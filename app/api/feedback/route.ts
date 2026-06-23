@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
+    const { default: db } = await import("@/lib/db");
+
     const body = await req.json();
 
     const question = String(body?.question ?? "").trim();

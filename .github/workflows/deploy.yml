@@ -1,0 +1,61 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy app to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          source: "."
+          target: ${{ secrets.DEPLOY_PATH }}
+          rm: false
+          strip_components: 0
+          overwrite: true
+          exclude: ".git,node_modules,.next,.env,.env.local,data/*.db,data/*.db-shm,data/*.db-wal,storage"
+
+      - name: Restart app container
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          APP_PORT: ${{ secrets.APP_PORT || 3030 }}
+          APP_URL: ${{ secrets.APP_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ADMIN_DASHBOARD_KEY: ${{ secrets.ADMIN_DASHBOARD_KEY }}
+          ADMIN_AUTH_COOKIE: ${{ secrets.ADMIN_AUTH_COOKIE || 'rtla_admin_auth' }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          envs: DEPLOY_PATH,APP_PORT,APP_URL,ANTHROPIC_API_KEY,ADMIN_DASHBOARD_KEY,ADMIN_AUTH_COOKIE
+          script: |
+            set -eu
+            cd "$DEPLOY_PATH"
+            mkdir -p storage
+            {
+              printf 'NODE_ENV=production\n'
+              printf 'APP_PORT=%s\n' "$APP_PORT"
+              printf 'APP_URL=%s\n' "$APP_URL"
+              printf 'NEXT_PUBLIC_APP_URL=%s\n' "$APP_URL"
+              printf 'ANTHROPIC_API_KEY=%s\n' "$ANTHROPIC_API_KEY"
+              printf 'ADMIN_DASHBOARD_KEY=%s\n' "$ADMIN_DASHBOARD_KEY"
+              printf 'ADMIN_AUTH_COOKIE=%s\n' "$ADMIN_AUTH_COOKIE"
+            } > .env.production
+            docker compose -f docker-compose.prod.yml up -d --build
+            docker image prune -f

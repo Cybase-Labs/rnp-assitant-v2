@@ -5,7 +5,6 @@ import {
   formatArticlesForPrompt,
   getLawMetadata,
 } from "@/lib/law-search";
-import db from "@/lib/db";
 
 type IncomingMessage = {
   role: "user" | "assistant";
@@ -114,6 +113,8 @@ function detectTopic(text: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const { default: db } = await import("@/lib/db");
+
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
         { error: "ANTHROPIC_API_KEY is not configured" },
